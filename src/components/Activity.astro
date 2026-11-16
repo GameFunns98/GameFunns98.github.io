@@ -1,5 +1,5 @@
 ---
-import { readFile } from "node:fs/promises";
+import steamData from "../../public/data/steam.json";
 import type { SteamSnapshot } from "../data/steam-source.mjs";
 import { favorites } from "../data/favorites";
 import { activityCopy, formatSnapshotDate, type ActivityLang } from "../data/activity-copy";
@@ -7,7 +7,7 @@ import { activityCopy, formatSnapshotDate, type ActivityLang } from "../data/act
 interface Props { lang: ActivityLang }
 const { lang } = Astro.props;
 const t = activityCopy[lang];
-const snapshot: SteamSnapshot = JSON.parse(await readFile("public/data/steam.json", "utf8"));
+const snapshot: SteamSnapshot = steamData;
 const formatHours = (n: number) => n.toLocaleString(lang === "cs" ? "cs-CZ" : "en-GB");
 ---
 
