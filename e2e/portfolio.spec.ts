@@ -83,6 +83,11 @@ test('mobile navigation, anchor targets and reduced motion', async ({ page }) =>
   expect(metrics.scroll).toBe('auto');
   expect(metrics.parallax).toBe('none');
   await page.screenshot({ path: 'test-results/review/mobile-dark.png', fullPage: true });
+  for (const width of [320, 768, 1024]) {
+    await page.setViewportSize({ width, height: 900 });
+    const fits = await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+    expect(fits, 'Content width at ' + width + 'px').toBe(true);
+  }
 });
 
 test('keyboard theme control persists and both palettes meet WCAG A/AA checks', async ({ page }) => {

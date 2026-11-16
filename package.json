@@ -14,7 +14,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "sync:steam": "node scripts/sync-steam.mjs",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "pretest:browser": "node scripts/create-preview.mjs"
   },
   "dependencies": {
     "astro": "7.4.12",

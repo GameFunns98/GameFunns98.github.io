@@ -77,7 +77,7 @@ const socials = [
     </div>
   </section>
   <section class="gf-wrap gf-section gf-about" id="about" aria-labelledby="about-title">
-    <div><p class="gf-line">{t('O mně','About me')}</p><h2 id="about-title">{t('Mezi kódem','Between code')}<br/><em>{t('a přírodou.','and nature.')}</em></h2></div>
+    <div><p class="gf-line">{t('O mně','About me')}</p><h2 id="about-title">{t('Mezi kódem','Between code') }<br/>{' '}<em>{t('a přírodou.','and nature.')}</em></h2></div>
     <div class="gf-about-body"><p>{t('Studuji zdravotnictví a ve volném čase programuji. Když mě ve hře nebo při práci něco zdržuje, většinou si na to zkusím napsat vlastní nástroj.','I study healthcare and write code in my spare time. When something slows me down in a game or while I’m working, I usually try building a tool for it.')}</p><p>{t('Rád se taky ztratím v přírodě, občas s foťákem v ruce. Tady dávám dohromady projekty, hry a drobné momenty, ke kterým se rád vracím.','I also like wandering outdoors, sometimes with a camera in hand. This is where I keep the projects, games and little moments I come back to.')}</p>
       <ul class="gf-interests">{interests.map(([icon,label])=><li><svg class="gf-icon" aria-hidden="true"><use href={'#gf-'+icon}/></svg>{label}</li>)}</ul>
     </div>
