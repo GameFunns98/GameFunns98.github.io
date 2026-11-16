@@ -44,12 +44,12 @@ const socials = [
 <a class="gf-skip" href="#main-content">{t('Přeskočit na obsah','Skip to content')}</a>
 <header class="gf-header" id="top">
   <div class="gf-wrap gf-head-inner">
-    <a class="gf-brand" href="#top" aria-label={t('GameFunns – úvod','GameFunns – home')}><span class="gf-monogram" aria-hidden="true">G<span>F</span></span>GameFunns</a>
+    <a class="gf-brand" href="#top" ><span class="gf-monogram" aria-hidden="true">G<span>F</span></span>GameFunns</a>
     <nav class="gf-nav" id="gf-nav" aria-label={t('Hlavní navigace','Main navigation')}>
       {sections.map(([id,label]) => <a href={'#'+id}>{label}</a>)}
     </nav>
     <div class="gf-controls">
-      <a class="gf-lang" href={'/'+otherLang+'/'} hreflang={otherLang} data-choose-lang={otherLang} aria-label={t('Switch to English','Přepnout do češtiny')}>{cs?'EN':'CZ'}</a>
+      <a class="gf-lang" href={'/'+otherLang+'/'} hreflang={otherLang} data-choose-lang={otherLang} aria-label={t('EN · Switch to English','CZ · Přepnout do češtiny')}>{cs?'EN':'CZ'}</a>
       <button class="gf-theme" type="button" data-theme-switch aria-label={t('Přepnout vzhled','Switch theme')} data-dark={t('Zapnout tmavý motiv','Use dark theme')} data-light={t('Zapnout světlý motiv','Use light theme')}>
         <svg class="gf-icon gf-show-dark" aria-hidden="true"><use href="#gf-sun"/></svg><svg class="gf-icon gf-show-light" aria-hidden="true"><use href="#gf-moon"/></svg>
       </button>

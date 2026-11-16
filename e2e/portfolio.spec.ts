@@ -82,6 +82,7 @@ test('mobile navigation, anchor targets and reduced motion', async ({ page }) =>
   expect(metrics.contentWidth).toBeLessThanOrEqual(metrics.width);
   expect(metrics.scroll).toBe('auto');
   expect(metrics.parallax).toBe('none');
+  await page.screenshot({ path: 'test-results/review/mobile-dark.png', fullPage: true });
 });
 
 test('keyboard theme control persists and both palettes meet WCAG A/AA checks', async ({ page }) => {
@@ -98,7 +99,8 @@ test('keyboard theme control persists and both palettes meet WCAG A/AA checks', 
     }
     const scan = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
-    expect(scan.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) })), theme).toEqual([]);
+    await page.screenshot({ path: 'test-results/review/desktop-' + theme + '.png', fullPage: true });
+    expect.soft(scan.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) })), theme).toEqual([]);
   }
 });
 
