@@ -17,7 +17,17 @@ jobs:
           cache: npm
       - run: npm ci --no-audit
       - run: npm run build
-      - name: Transfer preview through the connected GitHub channel
+      - run: node scripts/create-preview.mjs
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test e2e/offline.spec.ts
+      - name: Export review images
         run: |
-          tar --exclude='./images/forest.webp' --exclude='./images/sakura.webp' --exclude='./images/portrait.webp' -czf /tmp/portfolio-preview.tgz -C dist .
-          node -e "const b = require('fs').readFileSync('/tmp/portfolio-preview.tgz').toString('base64'); for(let i=0;i<b.length;i+=12000) console.log('PREVIEW_PART', i, b.slice(i,i+12000));"
+          node --input-type=module -e "
+          import sharp from 'sharp';
+          import fs from 'node:fs/promises';
+          for(const name of ['offline-desktop-dark','offline-desktop-light','offline-mobile-light']){
+            const file = 'test-results/review/'+name+'.png';
+            const meta=await sharp(file).metadata();
+            const bytes=await sharp(file).extract({left:0,top:0,width:meta.width,height:Math.min(meta.height,900)}).resize({width:Math.min(meta.width,1100)}).jpeg({quality:80}).toBuffer();
+            console.log('REVIEW_IMAGE',name,bytes.toString('base64'));
+          }"

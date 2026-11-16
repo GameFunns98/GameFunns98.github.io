@@ -6,6 +6,8 @@ Osobní portfolio Václava Dudy. Astro, TypeScript strict a Tailwind CSS. Výsle
 
 Použij Node.js 24 LTS a npm. Z kořene repozitáře spusť `npm ci`, potom `npm run dev`. Produkční verzi sestaví `npm run build` a spustí `npm run preview`.
 
+Při nedostupnosti místního serveru vytvoří `node scripts/create-preview.mjs` po sestavení samostatný soubor `.preview/GameFunns-preview.html`. Obsahuje oba jazyky, motivy, média a fonty ze skutečného produkčního buildu. Otevři ho přímo v prohlížeči. Živé integrace stále potřebují připojení k internetu.
+
 `npm run check` kontroluje Astro a TypeScript, `npm run lint` pravidla zdrojového kódu a `npm test` datové integrace. Pro testy prohlížeče nejdřív spusť `npx playwright install chromium`, potom `npm run test:browser`. Testy používají produkční build.
 
 ## Obsah
