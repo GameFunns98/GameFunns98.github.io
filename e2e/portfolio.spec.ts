@@ -1,14 +1,34 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 const discordURL = 'https://api.lanyard.rest/v1/users/922153911161323601';
+const errors = new WeakMap<Page, string[]>();
 
 test.beforeEach(async ({ page }) => {
+  const messages: string[] = [];
+  errors.set(page, messages);
+  page.on('pageerror', error => messages.push(error.message));
   // Never depend on third-party availability, quotas, or a person's real activity.
   await page.route(/^https?:\/\//, route => {
     const { hostname } = new URL(route.request().url());
     return hostname === '127.0.0.1' ? route.continue() : route.abort();
   });
+});
+
+test.afterEach(async ({ page }) => {
+  expect(errors.get(page) || [], 'Uncaught browser errors').toEqual([]);
+});
+
+test('the gallery loads media on demand and preserves an exit after failure', async ({ page }) => {
+  await page.goto('/en/#moments');
+  const gallery = page.locator('[data-moments]');
+  await expect(gallery.locator('video')).toHaveCount(0);
+  await gallery.getByRole('button', { name: 'Grand Theft Auto V', exact: true }).click();
+  await expect(gallery.locator('[data-game]')).toBeVisible();
+  await gallery.getByRole('button', { name: /^Play clip/ }).click();
+  await expect(gallery.locator('[data-error]')).toBeVisible();
+  await expect(gallery.getByRole('link', { name: /Open on Medal/ })).toHaveAttribute('href', /klxbis7ZHUJDfDyKB/);
+  await expect(gallery.locator('video')).toHaveCount(0);
 });
 
 test('browser language, explicit routes and saved language choice', async ({ browser, baseURL }) => {
