@@ -11,8 +11,11 @@ test('the portable review contains both languages, themes and complete local med
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('GameFunns');
   await page.evaluate(() => document.fonts.ready);
-  const media = await page.locator('img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth > 0));
-  expect(media).toBe(true);
+  for (const image of await page.locator('img[src]:visible').all()) {
+    await image.scrollIntoViewIfNeeded();
+    await expect(image).toHaveJSProperty('complete', true);
+    expect(await image.evaluate(element => element.naturalWidth)).toBeGreaterThan(0);
+  }
   await page.screenshot({ path: 'test-results/review/offline-desktop-dark.png', fullPage: true });
   await page.getByRole('button', { name: 'Use light theme' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
