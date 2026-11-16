@@ -86,6 +86,7 @@ test('mobile navigation, anchor targets and reduced motion', async ({ page }) =>
   for (const width of [320, 768, 1024]) {
     await page.setViewportSize({ width, height: 900 });
     const fits = await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
+    if (!fits) console.log('OVERFLOW', await page.locator('body *').evaluateAll(elements => elements.map(element => ({tag:element.tagName,cls:element.className,rect:element.getBoundingClientRect().right})).filter(element => element.rect > document.documentElement.clientWidth + 1)));
     expect(fits, 'Content width at ' + width + 'px').toBe(true);
   }
 });
