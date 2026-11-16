@@ -1,0 +1,125 @@
+---
+import { clips } from '../data/clips';
+interface Props { lang: 'cs' | 'en' }
+const { lang } = Astro.props;
+const copy = lang === 'cs'
+  ? { title: 'Herní', emphasis: 'momenty', all: 'Všechny hry', filter: 'Filtrovat podle hry', play: 'Přehrát klip', open: 'Otevřít na Medalu', close: 'Zavřít přehrávač', missing: 'Náhled není k dispozici', player: 'Přehrávač klipu', error: 'Video se nepodařilo načíst. Klip můžeš otevřít přímo na Medalu.' }
+  : { title: 'Gaming', emphasis: 'moments', all: 'All games', filter: 'Filter by game', play: 'Play clip', open: 'Open on Medal', close: 'Close player', missing: 'Preview unavailable', player: 'Clip player', error: 'The video could not be loaded. You can open the clip directly on Medal.' };
+const games = [...new Set(clips.map(clip => clip.game))];
+---
+<section class="gf-section" id="moments" aria-labelledby="moments-title" data-moments>
+  <div class="gf-section-head"><div><p class="gf-line">Medal</p><h2 id="moments-title">{copy.title} <em>{copy.emphasis}.</em></h2></div></div>
+  <div class="clip-filters" role="group" aria-label={copy.filter} data-filters hidden>
+    {[['*', copy.all], ...games.map(game => [game, game])].map(([key, label]) =>
+      <button type="button" class="chip" data-game-filter={key} aria-pressed={key === '*'}>{label}</button>
+    )}
+  </div>
+  <div class="clip-grid">
+    {clips.map(clip => <article class="clip" data-game={clip.game}>
+      <div class="clip-stage" data-stage>
+        <div class="clip-cover" data-cover>
+          {clip.poster && <img src={clip.poster} alt="" loading="lazy" decoding="async" />}
+          {clip.video ? <button class="play" type="button" data-play={clip.video} aria-label={copy.play + ' · ' + clip.title} data-title={copy.player + ' · ' + clip.title} hidden>
+            <svg aria-hidden="true" viewBox="0 0 24 24" width="23" height="23"><path fill="currentColor" d="M8 4.6 20 12 8 19.4z"/></svg>
+            {copy.play}
+          </button> : <a href={clip.url} class="play">{copy.open} <span aria-hidden="true">↗</span></a>}
+          {!clip.poster && <small>{copy.missing}</small>}
+        </div>
+      </div>
+      <div class="clip-description"><div><p class="clip-game">{clip.game}</p><h3>{clip.title}</h3></div><div class="clip-actions">
+        <button class="clip-close" data-close type="button" hidden>{copy.close}</button>
+        {clip.video && <a href={clip.url} rel="external">{copy.open} <span aria-hidden="true">↗</span></a>}
+      </div></div>
+      <p class="clip-error" data-error role="status" hidden>{copy.error}</p>
+    </article>)}
+  </div>
+</section>
+<script>
+  for (const gallery of document.querySelectorAll<HTMLElement>('[data-moments]')) {
+    const cards = gallery.querySelectorAll<HTMLElement>('[data-game]');
+    const filters = gallery.querySelectorAll<HTMLButtonElement>('[data-game-filter]');
+    const filterBar = gallery.querySelector<HTMLElement>('[data-filters]');
+    if (filterBar) filterBar.hidden = false;
+    for (const card of cards) {
+      const stage = card.querySelector<HTMLElement>('[data-stage]');
+      const cover = card.querySelector<HTMLElement>('[data-cover]');
+      const play = card.querySelector<HTMLButtonElement>('[data-play]');
+      const close = card.querySelector<HTMLButtonElement>('[data-close]');
+      const error = card.querySelector<HTMLElement>('[data-error]');
+      const source = play?.dataset.play;
+      if (!stage || !cover || !play || !close || !error || !source) continue;
+      play.hidden = false;
+      const stop = () => {
+        const video = stage.querySelector('video');
+        if (video) {
+          video.onerror = null;
+          video.pause();
+          video.removeAttribute('src');
+          video.load();
+          video.remove();
+        }
+        cover.hidden = false;
+        close.hidden = true;
+        error.hidden = true;
+      };
+      play.addEventListener('click', () => {
+        const video = document.createElement('video');
+        video.controls = true;
+        video.tabIndex = 0;
+        video.playsInline = true;
+        video.preload = 'none';
+        video.setAttribute('aria-label', play.dataset.title ?? 'Medal');
+        const image = cover.querySelector('img');
+        if (image) video.poster = image.src;
+        video.onerror = () => {
+          stop();
+          error.hidden = false;
+          play.focus();
+        };
+        video.src = source;
+        stage.append(video);
+        cover.hidden = true;
+        error.hidden = true;
+        close.hidden = false;
+        video.focus();
+        void video.play().catch(() => {
+          // Native controls allow a second play attempt when autoplay is restricted.
+        });
+      });
+      close.addEventListener('click', () => { stop(); play.focus(); });
+      card.addEventListener('clip-stop', stop);
+    }
+    for (const filter of filters) {
+      filter.addEventListener('click', () => {
+        for (const button of filters) button.setAttribute('aria-pressed', String(button === filter));
+        for (const card of cards) {
+          card.hidden = filter.dataset.gameFilter !== '*' && card.dataset.game !== filter.dataset.gameFilter;
+          if (card.hidden) card.dispatchEvent(new Event('clip-stop'));
+        }
+      });
+    }
+  }
+</script>
+<style>
+  [hidden] { display:none !important }
+  .clip-filters,.clip-actions {display:flex; gap:.6rem; flex-wrap:wrap; align-items:center}
+  .clip-filters {margin:1.4rem 0}
+  .chip,.clip-close {font:inherit; cursor:pointer; background:transparent; color:var(--text); border:1px solid var(--border); padding:.5rem .9rem; border-radius:2rem}
+  .chip[aria-pressed="true"] {border-color:var(--accent);color:var(--accent)}
+  .clip-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,25rem),1fr));gap:1rem}
+  .clip {border:1px solid var(--border); background:var(--surface); border-radius:1rem;overflow:hidden}
+  .clip-stage {aspect-ratio:16/6; min-height:10rem; position:relative; isolation:isolate; background:var(--surface)}
+  .clip-stage:has(video) {aspect-ratio:16/9}
+  .clip-cover {position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:.7rem;background:radial-gradient(ellipse at 50% 90%,color-mix(in srgb,var(--accent) 14%,transparent),transparent 70%),repeating-linear-gradient(135deg,transparent 0 15px,color-mix(in srgb,var(--accent) 5%,transparent) 16px 17px)}
+  .clip-cover img,.clip-stage :global(video) {position:absolute; inset:0;width:100%;height:100%;object-fit:cover;border:0}
+  .clip-stage :global(video) {object-fit:contain;background:#070807}
+  .clip-cover small {color:var(--muted);font-size:.75rem}
+  .play {position:relative;display:flex;align-items:center;gap:.5rem;border-radius:2rem;border:1px solid var(--accent);background:var(--surface);color:var(--text);padding:.65rem 1rem;font:inherit;cursor:pointer}
+  .play svg {color:var(--accent)}
+  .clip-description {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:1.2rem 1.4rem;gap:.75rem;border-top:1px solid var(--border)}
+  .clip-description h3 {margin:0;color:var(--text)}
+  .clip-game {margin:0 0 .25rem;color:var(--muted);font-size:.8rem}
+  .clip-error {margin:0;padding:0 1.4rem 1.2rem;color:var(--text)}
+  .clip-actions a,.clip-close {color:var(--accent);font-size:.85rem}
+  .clip-actions a {text-decoration:underline;text-underline-offset:.25em}
+</style>

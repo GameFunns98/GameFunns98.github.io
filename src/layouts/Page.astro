@@ -1,0 +1,49 @@
+---
+import '../styles/base.css';
+interface Props { lang: 'cs' | 'en'; detectLanguage?: boolean }
+const { lang, detectLanguage = false } = Astro.props;
+const site = Astro.site!;
+const description = lang === 'cs'
+  ? 'Osobní svět Václava, kterého online potkáš jako GameFunns. Vlastní projekty, hry, klipy a chvíle v přírodě.'
+  : 'The personal world of Václav, known online as GameFunns. Explore his projects, games, clips and time in nature.';
+const title = lang === 'cs' ? 'Václav · GameFunns — Osobní portfolio' : 'Václav · GameFunns — Personal portfolio';
+const url = new URL('/' + lang + '/', site);
+---
+<!doctype html>
+<html {lang} data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  {import.meta.env.PROD && <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://cdn.discordapp.com; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://api.lanyard.rest; media-src 'self' https://medal.tv https://*.medal.tv; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'" />}
+  <link rel="stylesheet" href="/fonts/fonts.css" />
+  <script is:inline define:vars={{ detectLanguage }}>
+    let savedLanguage;
+    try {
+      savedLanguage = localStorage.getItem('lang');
+      document.documentElement.dataset.theme = localStorage.getItem('theme') === 'light' ? 'light' : 'dark';
+    } catch {}
+    if (detectLanguage) {
+      const preferred = (navigator.languages || [navigator.language]).find(value => /^(cs|en)(-|$)/i.test(value));
+      const lang = savedLanguage === 'en' || savedLanguage === 'cs' ? savedLanguage : /^cs/i.test(preferred || '') ? 'cs' : 'en';
+      location.replace('/' + lang + '/' + location.search + location.hash);
+    }
+  </script>
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="canonical" href={url} />
+  <link rel="alternate" hreflang="cs" href={new URL('/cs/', site)} />
+  <link rel="alternate" hreflang="en" href={new URL('/en/', site)} />
+  <link rel="alternate" hreflang="x-default" href={site} />
+  <meta property="og:title" content={title} />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={url} />
+  <meta property="og:description" content={description} />
+  <meta property="og:locale" content={lang === 'cs' ? 'cs_CZ' : 'en_US'} />
+  <meta property="og:site_name" content="GameFunns" />
+  <meta property="og:image" content={new URL('/images/forest.webp', site)} />
+  <meta name="twitter:card" content="summary_large_image" />
+</head>
+<body><slot /></body>
+</html>

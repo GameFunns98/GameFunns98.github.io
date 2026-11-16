@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320">
+  <defs><linearGradient id="field" x2="95%" y2="80%"><stop stop-color="#10262f"/><stop offset="1" stop-color="#31616c"/></linearGradient>
+    <pattern id="grid" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M22 0H0v22" fill="none" stroke="#acd8c4" stroke-opacity=".12" stroke-width=".8"/></pattern><linearGradient id="paper" x2="100%" y2="100%"><stop stop-color="#eaf4d8"/><stop offset="1" stop-color="#93beb0"/></linearGradient>
+  </defs>
+  <rect width="640" height="320" fill="url(#field)"/>
+  <rect width="640" height="320" fill="url(#grid)"/>
+  <g fill="none" stroke="#acd8c4" stroke-width="1" opacity=".22"><path d="M-42 278C73 291 60 226 145 253S280 293 252 350M-38 264C75 277 59 212 145 239S279 280 250 339M-32 249C81 262 65 197 151 224S285 265 256 324M436-24c-5 69 71 9 105 82s68 47 123 27M449-22c-5 68 72 8 106 81s67 48 120 27M462-24c-5 68 72 8 106 81s67 48 120 27"/></g>
+  <g transform="rotate(-8 320 160)" stroke-linecap="round" stroke-linejoin="round"><path d="M259 56h100l34 34v178H259z" fill="#193d47" opacity=".72" transform="translate(-13 11)"/><path d="M259 56h100l34 34v178H259z" fill="url(#paper)" stroke="#daf0d6" stroke-width="2"/><path d="M359 57v34h33" fill="none" stroke="#669b93" stroke-width="2"/><g fill="none" stroke="#447d73" stroke-width="5"><path d="M281 102h29m-15-14v28M279 144h61m-61 15h86m-86 16h53"/><path d="M277 214h22l8-12 7 22 9-34 8 24h32" stroke-width="3"/></g></g>
+</svg>

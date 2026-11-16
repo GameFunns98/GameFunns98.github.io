@@ -1,0 +1,86 @@
+---
+import { readFile } from "node:fs/promises";
+import type { SteamSnapshot } from "../data/steam-source.mjs";
+import { favorites } from "../data/favorites";
+import { activityCopy, formatSnapshotDate, type ActivityLang } from "../data/activity-copy";
+
+interface Props { lang: ActivityLang }
+const { lang } = Astro.props;
+const t = activityCopy[lang];
+const snapshot: SteamSnapshot = JSON.parse(await readFile("public/data/steam.json", "utf8"));
+const formatHours = (n: number) => n.toLocaleString(lang === "cs" ? "cs-CZ" : "en-GB");
+---
+
+<section id="gaming" class="gf-section activity" data-activity-root data-lang={lang} data-revision={snapshot.revision} aria-labelledby="gaming-title">
+  <div class="gf-section-head"><h2 id="gaming-title">{t.heading} <em>{t.emphasis}</em></h2><span class="gf-line" aria-hidden="true"></span></div>
+  <div class="activity-grid">
+    <article class="service steam">
+      <header class="card-head"><span class="service-name"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="16.6" cy="7.3" r="3.9"/><circle cx="16.6" cy="7.3" r="1.8"/><path d="m13.4 9.7-4.1 5.1m5.6-4.1-3.5 5.7M2 14l5.3 2.4a2.7 2.7 0 1 1-.8 2L1 16"/></svg> Steam</span>
+      <a href="https://steamcommunity.com/id/Gamefunns/">{t.steamProfile} <span aria-hidden="true">↗</span></a></header>
+      <h3>{t.recent}</h3>
+      <ul class="steam-games" data-games>
+        {snapshot.games.map((game) =>
+          <li>
+            <img hidden={!game.icon} src={game.icon || undefined} alt="" width="44" height="44" loading="lazy" />
+            <div class="game-info"><strong data-title>{game.title}</strong>
+              <span class="stat-line"><span data-hours hidden={game.hours === null}>{t.hours} {game.hours === null ? "" : formatHours(game.hours)} {t.unit}</span>
+              <span data-played hidden={!game.lastPlayed}>{t.played} {game.lastPlayed && formatSnapshotDate(game.lastPlayed, lang)}</span></span>
+            </div>
+          </li>
+        )}
+      </ul>
+      <p class="timestamp">{t.snapshot} · <time data-snapshot datetime={snapshot.updatedAt}>{formatSnapshotDate(snapshot.updatedAt, lang, true)}</time></p>
+    </article>
+    <article class="service discord">
+      <header class="card-head"><span class="service-name"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5.8 6.6 5 4.4 6C2.6 9.3 2 12.4 2 15.5 3.8 17.3 5.4 18 7.2 18.3l1-1.5m7.8-11 1.4-.8 2.2 1c1.8 3.3 2.4 6.4 2.4 9.5-1.8 1.8-3.4 2.5-5.2 2.8l-1-1.5M7.1 7.2c3.1-1.2 6.7-1.2 9.8 0M7 15.5c3.4 1.4 6.6 1.4 10 0"/><ellipse cx="8.6" cy="11.7" rx=".9" ry="1.2"/><ellipse cx="15.4" cy="11.7" rx=".9" ry="1.2"/></svg> Discord</span>
+      <a href="https://discord.com/users/922153911161323601">{t.discordProfile} <span aria-hidden="true">↗</span></a></header>
+      <div class="identity"><div class="avatar"><span aria-hidden="true">G</span><img data-avatar hidden alt="" width="48" height="48" loading="lazy" /></div>
+        <div><h3 data-name>GameFunns</h3><span class="connection" data-connection aria-live="polite">{t.unavailable}</span></div>
+      </div>
+      <p class="activity-detail" data-custom hidden></p>
+      <ul class="activities" data-discord-list hidden></ul>
+      <p class="activity-detail" data-presence-info>{t.noSignal}</p>
+      <p class="timestamp" data-live-time hidden></p>
+      <noscript><p class="timestamp">{t.js}</p></noscript>
+    </article>
+  </div>
+  {favorites.length > 0 && <div class="favorites"><h3>{t.favorites}</h3><ul>{favorites.map((game) => <li><a href={game.url}>{game.title} <span aria-hidden="true">↗</span></a></li>)}</ul></div>}
+</section>
+
+<script>
+  import { mountActivity } from "../data/activity-client";
+  for (const root of document.querySelectorAll<HTMLElement>("[data-activity-root]")) mountActivity(root);
+</script>
+
+<style>
+.activity{--card-fill:var(--surface,#101b18);--card-border:var(--border,#30423d);color:var(--text,#f3eee5)}
+.activity-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:1.15rem}
+.service{min-width:0;padding:clamp(1.2rem,3vw,2rem);border:1px solid var(--card-border);border-radius:1.1rem;background:var(--card-fill);display:flex;flex-direction:column}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.4rem}
+.service-name{display:inline-flex;align-items:center;gap:.55rem;color:var(--accent,#93d3b5);font-size:.8rem;font-weight:650}
+.service-name svg{width:19px;height:19px}
+.card-head a,.favorites a{font-size:.78rem;color:var(--muted,#bacbc3);text-decoration:underline;text-decoration-color:transparent;text-underline-offset:.2em}
+.card-head a:hover,.favorites a:hover{text-decoration-color:currentColor;color:var(--text,#f3eee5)}
+.service h3,.favorites h3{font-family:inherit;font-size:1.2rem;line-height:1.25;margin:0;color:var(--text,#f3eee5);font-weight:650}
+.steam-games,.activities,.favorites ul{margin:0;padding:0;list-style:none}
+.steam-games{margin:.7rem 0 1rem}
+.steam-games li{display:flex;align-items:center;gap:.8rem;border-bottom:1px solid var(--card-border);padding:.65rem 0}
+.steam-games li:last-child{border:0}
+.steam-games img,.avatar img{object-fit:cover;border-radius:.5rem}
+.steam-games img{width:2.55rem;height:2.55rem;flex:none;image-rendering:auto}
+.game-info{min-width:0}
+.game-info strong{display:block;color:var(--text,#f3eee5);font-size:.95rem;overflow-wrap:anywhere}
+.stat-line{display:flex;flex-wrap:wrap;column-gap:.8rem;font-size:.76rem;color:var(--muted,#bacbc3)}
+.timestamp{margin:auto 0 0;font-size:.73rem;color:var(--muted,#bacbc3);line-height:1.6}
+.identity{display:flex;gap:.85rem;align-items:center;margin:.2rem 0 1.4rem}
+.avatar{position:relative;display:grid;place-items:center;width:3rem;height:3rem;border-radius:50%;border:1px solid var(--card-border);color:var(--accent,#93d3b5);font-size:1.65rem;font-family:Georgia,serif}
+.avatar img{position:absolute;inset:0;border-radius:50%;width:100%;height:100%}
+.connection{display:flex;align-items:center;gap:.45rem;color:var(--muted,#bacbc3);font-size:.8rem;margin-top:.25rem}
+.connection::before{content:"";width:.5rem;height:.5rem;border-radius:50%;background:currentColor}
+.connection[data-state=online]::before{background:#45bb83}.connection[data-state=idle]::before{background:#e4ad41}.connection[data-state=dnd]::before{background:#da6969}
+.activity-detail,.activities{margin:0 0 1rem;overflow-wrap:anywhere;color:var(--muted,#bacbc3);font-size:.9rem}
+.activities{display:grid;gap:.35rem}
+.favorites{margin-top:1.35rem}.favorites ul{display:flex;flex-wrap:wrap;gap:1rem;margin-top:.4rem}
+.service [hidden]{display:none}
+@media(max-width:720px){.activity-grid{grid-template-columns:1fr}.service{border-radius:.9rem}}
+</style>

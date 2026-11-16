@@ -1,0 +1,112 @@
+import { expect, test } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
+
+const discordURL = 'https://api.lanyard.rest/v1/users/922153911161323601';
+
+test.beforeEach(async ({ page }) => {
+  // Never depend on third-party availability, quotas, or a person's real activity.
+  await page.route(/^https?:\/\//, route => {
+    const { hostname } = new URL(route.request().url());
+    return hostname === '127.0.0.1' ? route.continue() : route.abort();
+  });
+});
+
+test('browser language, explicit routes and saved language choice', async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ locale: 'cs-CZ', baseURL });
+  await context.route(/^https:\/\//, route => route.abort());
+  const page = await context.newPage();
+  try {
+    await page.goto('/');
+    await expect(page).toHaveURL(/\/cs\/$/);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'cs');
+    await page.getByRole('link', { name: 'Switch to English' }).click();
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await page.goto('/');
+    await expect(page).toHaveURL(/\/en\/$/);
+    await page.goto('/cs/');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'cs');
+  } finally {
+    await context.close();
+  }
+});
+
+test('mobile navigation, anchor targets and reduced motion', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 760 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/cs/');
+  const menu = page.getByRole('button', { name: 'Navigační menu' });
+  const navigation = page.getByRole('navigation', { name: 'Hlavní navigace' });
+  await menu.focus();
+  await page.keyboard.press('Enter');
+  await expect(navigation).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(menu).toBeFocused();
+  await expect(menu).toHaveAttribute('aria-expanded', 'false');
+  await menu.click();
+  const targets = await navigation.getByRole('link').evaluateAll(links => links.map(link => {
+    const anchor = link as HTMLAnchorElement;
+    return { hash: anchor.hash, matches: document.querySelectorAll(anchor.hash).length };
+  }));
+  expect(targets).toHaveLength(5);
+  for (const target of targets) expect(target.matches, target.hash).toBe(1);
+  await navigation.getByRole('link', { name: 'Projekty' }).click();
+  await expect(page).toHaveURL(/#projects$/);
+  await expect(navigation).toBeHidden();
+  await expect(page.locator('#projects')).toBeInViewport();
+  const metrics = await page.evaluate(() => ({
+    width: document.documentElement.clientWidth,
+    contentWidth: document.documentElement.scrollWidth,
+    scroll: getComputedStyle(document.documentElement).scrollBehavior,
+    parallax: getComputedStyle(document.querySelector('.gf-landscape')!).transform,
+  }));
+  expect(metrics.contentWidth).toBeLessThanOrEqual(metrics.width);
+  expect(metrics.scroll).toBe('auto');
+  expect(metrics.parallax).toBe('none');
+});
+
+test('keyboard theme control persists and both palettes meet WCAG A/AA checks', async ({ page }) => {
+  await page.goto('/en/');
+  const html = page.locator('html');
+  await expect(html).toHaveAttribute('data-theme', 'dark');
+  for (const theme of ['dark', 'light']) {
+    if (theme === 'light') {
+      await page.getByRole('button', { name: 'Use light theme' }).focus();
+      await page.keyboard.press('Enter');
+      await expect(html).toHaveAttribute('data-theme', 'light');
+      await page.reload();
+      await expect(html).toHaveAttribute('data-theme', 'light');
+    }
+    const scan = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    expect(scan.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) })), theme).toEqual([]);
+  }
+});
+
+test('Discord live activity disappears on outage while the dated Steam snapshot survives', async ({ page }) => {
+  let available = true;
+  await page.route(discordURL, route => route.fulfill({
+    status: available ? 200 : 503,
+    headers: { 'access-control-allow-origin': '*', 'content-type': 'application/json' },
+    body: JSON.stringify(available ? {
+      success: true, data: {
+        discord_user: { id: '922153911161323601', username: 'fixture-user' },
+        discord_status: 'online',
+        activities: [{ type: 0, name: 'Fixture game' }, { type: 4, state: 'Fixture status' }],
+      },
+    } : { success: false }),
+  }));
+  await page.goto('/en/#gaming');
+  const state = page.locator('[data-connection]');
+  await expect(state).toHaveText('Online');
+  await expect(page.locator('[data-discord-list]')).toContainText('Playing Fixture game');
+  await expect(page.locator('[data-custom]')).toContainText('Fixture status');
+  await expect(page.locator('[data-live-time]')).toBeVisible();
+  available = false;
+  await page.reload();
+  await expect(page.locator('[data-presence-info]')).toHaveText('Public activity is currently unavailable.');
+  await expect(state).toHaveText('Status unavailable');
+  await expect(page.locator('[data-discord-list]')).toBeHidden();
+  await expect(page.locator('[data-live-time]')).toBeHidden();
+  await expect(page.locator('[data-games] [data-title]').first()).toBeVisible();
+  await expect(page.locator('time[data-snapshot]')).toHaveAttribute('datetime', /\d{4}-\d{2}-\d{2}/);
+});
