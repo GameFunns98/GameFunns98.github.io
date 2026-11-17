@@ -79,6 +79,7 @@ test('mobile navigation, anchor targets and reduced motion', async ({ page }) =>
     scroll: getComputedStyle(document.documentElement).scrollBehavior,
     parallax: getComputedStyle(document.querySelector('.gf-landscape')!).transform,
   }));
+  if (metrics.contentWidth > metrics.width) console.log('NARROW_OVERFLOW', await page.locator('body *').evaluateAll(elements => elements.map(element => ({ tag: element.tagName, cls: element.className, right: Math.round(element.getBoundingClientRect().right), width: Math.round(element.getBoundingClientRect().width), font: getComputedStyle(element).fontSize })).filter(element => element.right > document.documentElement.clientWidth + 1)));
   expect(metrics.contentWidth).toBeLessThanOrEqual(metrics.width);
   expect(metrics.scroll).toBe('auto');
   expect(metrics.parallax).toBe('none');
