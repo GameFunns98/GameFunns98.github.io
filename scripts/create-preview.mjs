@@ -4,7 +4,7 @@ import path from 'node:path';
 // Package the real production build for review when a local server is unavailable.
 const root = path.resolve('dist');
 const output = path.resolve('.preview/GameFunns-preview.html');
-const mime = { '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.jpg': 'image/jpeg', '.ttf': 'font/ttf', '.woff2': 'font/woff2' };
+const mime = { '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.jpg': 'image/jpeg', '.png': 'image/png', '.ttf': 'font/ttf', '.woff2': 'font/woff2' };
 const cache = new Map();
 
 async function dataURL(url) {
