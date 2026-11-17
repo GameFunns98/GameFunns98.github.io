@@ -22,7 +22,7 @@ test('the portable review contains both languages, themes and complete local med
   await page.screenshot({ path: 'test-results/review/offline-desktop-light.png', fullPage: true });
   await page.getByRole('link', { name: /Přepnout do češtiny/ }).click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'cs');
-  await expect(page.getByRole('heading', { name: /Mezi kódem/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Ahoj,.*jsem Václav/ })).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({ path: 'test-results/review/offline-mobile-light.png', fullPage: true });
   expect(errors).toEqual([]);

@@ -15,9 +15,9 @@ async function request(url, limit = 2_000_000, headers = {}) {
 
 async function fonts() {
   if (await exists('public/fonts/fonts.css')) return;
-  const cssURL = 'https://fonts.googleapis.com/css2?family=Baskervville:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap';
+  const cssURL = 'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,144,700;1,144,700&family=Poppins:wght@400;500;600&display=swap';
   let css = (await request(cssURL, 100000, {
-    'User-Agent': 'Mozilla/5.0 Chrome/130.0.0.0 Safari/537.36',
+    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
   })).bytes.toString('utf8');
   const urls = [...new Set([...css.matchAll(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/g)].map(match => match[1]))];
   if (!urls.length || urls.length > 40) throw new Error('Font CSS format changed');
@@ -25,13 +25,13 @@ async function fonts() {
   for (let index = 0; index < urls.length; index++) {
     const source = urls[index];
     const extension = new URL(source).pathname.endsWith('.woff2') ? 'woff2' : 'ttf';
-    const filename = `font-${index}.${extension}`;
+    const filename = `reference-${index}.${extension}`;
     const { bytes } = await request(source);
     await writeFile(path.join('public/fonts', filename), bytes);
     css = css.replaceAll(source, `/fonts/${filename}`);
   }
   await writeFile('public/fonts/fonts.css', css);
-  for (const family of ['baskervville', 'dmsans']) {
+  for (const family of ['fraunces', 'poppins']) {
     const license = await request(`https://raw.githubusercontent.com/google/fonts/main/ofl/${family}/OFL.txt`, 30000);
     await writeFile(`public/fonts/LICENSE-${family}.txt`, license.bytes);
   }

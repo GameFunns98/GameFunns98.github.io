@@ -10,21 +10,25 @@ const cs = lang === 'cs';
 const t = (czech: string, english: string) => cs ? czech : english;
 const otherLang = cs ? 'en' : 'cs';
 const sections = [
-  ['about', t('O mně','About')],
-  ['gaming', t('Hraní','Gaming')],
-  ['projects', t('Projekty','Projects')],
-  ['moments', t('Momenty','Moments')],
-  ['connect', t('Kontakt','Connect')],
+  ['about', t('O mně', 'About')],
+  ['gaming', t('Hraní', 'Gaming')],
+  ['projects', t('Projekty', 'Projects')],
+  ['moments', t('Momenty', 'Moments')],
+  ['connect', t('Kontakt', 'Connect')],
 ];
 const interests = [
-  ['code',t('Programování','Programming')], ['game',t('Hry','Gaming')], ['leaf',t('Příroda','Nature')], ['pulse',t('Zdravotnictví','Healthcare')], ['camera',t('Fotografie','Photography')]
+  ['code', t('Programování', 'Programming')],
+  ['game', t('Hry', 'Gaming')],
+  ['leaf', t('Příroda', 'Nature')],
+  ['pulse', t('Zdravotnictví', 'Healthcare')],
+  ['camera', t('Fotografie', 'Photography')],
 ];
 const socials = [
-  ['GitHub','https://github.com/GameFunns98','GameFunns98'],
-  ['Instagram','https://www.instagram.com/vevoda_vaclav/','@vevoda_vaclav'],
-  ['Steam','https://steamcommunity.com/id/Gamefunns/','GameFunns'],
-  ['Discord','https://discord.com/users/922153911161323601','922153911161323601'],
-  ['LinkedIn','https://www.linkedin.com/in/v%C3%A1clav-duda-1956463a8/','Václav Duda'],
+  ['GitHub', 'https://github.com/GameFunns98', 'GameFunns98'],
+  ['Instagram', 'https://www.instagram.com/vevoda_vaclav/', '@vevoda_vaclav'],
+  ['Steam', 'https://steamcommunity.com/id/Gamefunns/', 'GameFunns'],
+  ['Discord', 'https://discord.com/users/922153911161323601', 'GameFunns'],
+  ['LinkedIn', 'https://www.linkedin.com/in/v%C3%A1clav-duda-1956463a8/', 'Václav Duda'],
 ];
 ---
 <svg class="gf-symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -41,56 +45,106 @@ const socials = [
     <symbol id="gf-camera" viewBox="0 0 24 24"><path d="M3 7h4l2-3h6l2 3h4v13H3z"/><circle cx="12" cy="13" r="3.5"/></symbol>
   </defs>
 </svg>
-<a class="gf-skip" href="#main-content">{t('Přeskočit na obsah','Skip to content')}</a>
+<a class="gf-skip" href="#main-content">{t('Přeskočit na obsah', 'Skip to content')}</a>
 <header class="gf-header" id="top">
   <div class="gf-wrap gf-head-inner">
-    <a class="gf-brand" href="#top" ><span class="gf-monogram" aria-hidden="true">G<span>F</span></span>GameFunns</a>
-    <nav class="gf-nav" id="gf-nav" aria-label={t('Hlavní navigace','Main navigation')}>
-      {sections.map(([id,label]) => <a href={'#'+id}>{label}</a>)}
+    <a class="gf-brand" href="#top"><span class="gf-star gf-brand-star" aria-hidden="true"></span>GameFunns</a>
+    <nav class="gf-nav" id="gf-nav" aria-label={t('Hlavní navigace', 'Main navigation')}>
+      {sections.map(([id, label]) => <a href={'#' + id} class:list={{ 'gf-nav-contact': id === 'connect' }}>{label}</a>)}
     </nav>
     <div class="gf-controls">
-      <a class="gf-lang" href={'/'+otherLang+'/'} hreflang={otherLang} data-choose-lang={otherLang} aria-label={t('EN · Switch to English','CZ · Přepnout do češtiny')}>{cs?'EN':'CZ'}</a>
-      <button class="gf-theme" type="button" data-theme-switch aria-label={t('Přepnout vzhled','Switch theme')} data-dark={t('Zapnout tmavý motiv','Use dark theme')} data-light={t('Zapnout světlý motiv','Use light theme')}>
-        <svg class="gf-icon gf-show-dark" aria-hidden="true"><use href="#gf-sun"/></svg><svg class="gf-icon gf-show-light" aria-hidden="true"><use href="#gf-moon"/></svg>
+      <a class="gf-lang" href={'/' + otherLang + '/'} hreflang={otherLang} data-choose-lang={otherLang} aria-label={t('EN · Switch to English', 'CZ · Přepnout do češtiny')}>{cs ? 'EN' : 'CZ'}</a>
+      <button class="gf-theme" type="button" data-theme-switch aria-label={t('Přepnout vzhled', 'Switch theme')} data-dark={t('Zapnout tmavý motiv', 'Use dark theme')} data-light={t('Zapnout světlý motiv', 'Use light theme')}>
+        <svg class="gf-icon gf-show-dark" aria-hidden="true"><use href="#gf-sun"/></svg>
+        <svg class="gf-icon gf-show-light" aria-hidden="true"><use href="#gf-moon"/></svg>
       </button>
-      <button class="gf-menu" type="button" aria-controls="gf-nav" aria-expanded="false" aria-label={t('Navigační menu','Navigation menu')}><span></span><span></span></button>
+      <button class="gf-menu" type="button" aria-controls="gf-nav" aria-expanded="false" aria-label={t('Navigační menu', 'Navigation menu')}><span></span><span></span></button>
     </div>
   </div>
 </header>
 <main id="main-content">
   <section class="gf-hero" aria-labelledby="hero-name">
-    <div class="gf-landscape" aria-hidden="true"></div>
-    <div class="gf-wrap gf-hero-inner">
-      <figure class="gf-portrait">
-        <div class="gf-portrait-frame"><img src="/images/portrait.webp" alt={t('Portrét Václava','Portrait of Václav')} fetchpriority="high" width="460" height="580"/></div>
-        <figcaption>Václav Duda</figcaption>
-      </figure>
-      <div class="gf-intro">
-        <p class="gf-line gf-hello">{t('Ahoj, jsem Václav','Hey, I’m Václav')}</p>
-        <h1 id="hero-name">Game<span>Funns</span><i>.</i></h1>
-        <p class="gf-lead">{t('Baví mě tvořit věci, které mi chybí. Někdy je to pár řádků kódu, jindy celý herní svět.','I like building the things I wish existed. Sometimes that’s a few lines of code, sometimes a whole game world.')}</p>
-        <div class="gf-hero-links">
-          <a class="gf-button" href="#projects">{t('Moje projekty','My projects')}<svg class="gf-icon" aria-hidden="true"><use href="#gf-arrow"/></svg></a>
-          <a class="gf-secondary" href="#about">{t('Více o mně','More about me')}<svg class="gf-icon" aria-hidden="true"><use href="#gf-down"/></svg></a>
+    <div class="gf-hero-canvas">
+      <div class="gf-landscape" aria-hidden="true"></div>
+      <div class="gf-wrap gf-hero-stage">
+        <h1 id="hero-name">GameFunns</h1>
+        <div class="gf-echo" aria-hidden="true"><span>GameFunns</span><span>GameFunns</span><span>GameFunns</span></div>
+        <figure class="gf-portrait">
+          <span class="gf-star gf-photo-star" aria-hidden="true"></span>
+          <div class="gf-portrait-frame"><img src="/images/portrait.webp" alt={t('Portrét Václava', 'Portrait of Václav')} fetchpriority="high" width="720" height="1278"/></div>
+          <span class="gf-star gf-photo-star-small" aria-hidden="true"></span>
+        </figure>
+        <div class="gf-intro">
+          <p class="gf-hello">{t('Ahoj, jsem', 'Hello, I’m')}<strong>Václav Duda.</strong></p>
+          <p class="gf-lead">{t('Tvořím, hraju a objevuju svět kolem sebe.', 'I build, play and explore the world around me.')}</p>
+          <div class="gf-hero-links">
+            <a href="https://github.com/GameFunns98"><span>GH</span> / GameFunns98</a>
+            <a href="https://steamcommunity.com/id/Gamefunns/"><span>Steam</span> / GameFunns</a>
+            <a class="gf-hero-projects" href="#projects">{t('Moje projekty', 'My projects')} <svg class="gf-icon" aria-hidden="true"><use href="#gf-arrow"/></svg></a>
+          </div>
         </div>
       </div>
     </div>
+    <div class="gf-hero-bottom">
+      <div class="gf-wrap"><p>{t('Od pár řádků kódu k vlastním herním světům. Tady je malý kousek toho mého.', 'From a few lines of code to game worlds of my own. Here is a little piece of mine.')}</p></div>
+    </div>
+    <a class="gf-scroll-cue" href="#about"><span>{t('Přejít', 'Scroll')}<br/>{t('níž', 'down')}</span><svg class="gf-icon" aria-hidden="true"><use href="#gf-down"/></svg></a>
   </section>
+
   <section class="gf-wrap gf-section gf-about" id="about" aria-labelledby="about-title">
-    <div><p class="gf-line">{t('O mně','About me')}</p><h2 id="about-title">{t('Mezi kódem','Between code') }<br/>{' '}<em>{t('a přírodou.','and nature.')}</em></h2></div>
-    <div class="gf-about-body"><p>{t('Studuji zdravotnictví a ve volném čase programuji. Když mě ve hře nebo při práci něco zdržuje, většinou si na to zkusím napsat vlastní nástroj.','I study healthcare and write code in my spare time. When something slows me down in a game or while I’m working, I usually try building a tool for it.')}</p><p>{t('Rád se taky ztratím v přírodě, občas s foťákem v ruce. Tady dávám dohromady projekty, hry a drobné momenty, ke kterým se rád vracím.','I also like wandering outdoors, sometimes with a camera in hand. This is where I keep the projects, games and little moments I come back to.')}</p>
-      <ul class="gf-interests">{interests.map(([icon,label])=><li><svg class="gf-icon" aria-hidden="true"><use href={'#gf-'+icon}/></svg>{label}</li>)}</ul>
+    <div class="gf-about-body">
+      <h2 id="about-title">{t('Ahoj,', 'Hello,')}<br/>{t('jsem Václav!', 'I’m Václav!')}</h2>
+      <p>{t('Studuji zdravotnictví a ve volném čase programuji. Když mě ve hře nebo při práci něco zdržuje, většinou si na to zkusím napsat vlastní nástroj.', 'I study healthcare and write code in my spare time. When something slows me down in a game or while I’m working, I usually try building a tool for it.')}</p>
+      <p>{t('Rád se taky ztratím v přírodě, občas s foťákem v ruce. Tady dávám dohromady projekty, hry a drobné momenty, ke kterým se rád vracím.', 'I also like wandering outdoors, sometimes with a camera in hand. This is where I keep the projects, games and little moments I come back to.')}</p>
+      <a class="gf-button gf-about-link" href="#connect"><svg class="gf-icon" aria-hidden="true"><use href="#gf-external"/></svg>{t('Pojďme se propojit', 'Let’s connect')}</a>
+    </div>
+    <div class="gf-about-card">
+      <div class="gf-about-art">
+        <span class="gf-portrait-disc" aria-hidden="true"></span>
+        <img src="/images/portrait.webp" alt="" loading="lazy" width="720" height="1278"/>
+        <span class="gf-note-label gf-note-study">{t('Zdravotnictví & IT', 'Healthcare & IT')}</span>
+        <span class="gf-note-label gf-note-play">{t('Hry & příroda', 'Games & nature')}</span>
+      </div>
+      <div class="gf-contact-card">
+        <h3>{t('Kontakt', 'Connect')}</h3>
+        <a href="https://www.instagram.com/vevoda_vaclav/"><span>IG</span> @vevoda_vaclav <svg class="gf-icon" aria-hidden="true"><use href="#gf-external"/></svg></a>
+        <a href="https://discord.com/users/922153911161323601"><span>DC</span> GameFunns <svg class="gf-icon" aria-hidden="true"><use href="#gf-external"/></svg></a>
+      </div>
+    </div>
+    <ul class="gf-interests">{interests.map(([icon, label]) => <li><svg class="gf-icon" aria-hidden="true"><use href={'#gf-' + icon}/></svg><span>{label}</span></li>)}</ul>
+  </section>
+
+  <div class="gf-gaming-band"><div class="gf-wrap gf-integration"><Activity lang={lang}/></div></div>
+
+  <section class="gf-wrap gf-section gf-projects" id="projects" aria-labelledby="projects-title">
+    <div class="gf-section-head">
+      <div><p class="gf-line">GitHub</p><h2 id="projects-title">{t('Vlastní', 'Things I')}<br/>{t('projekty.', 'build.')}</h2></div>
+      <a class="gf-secondary" href="https://github.com/GameFunns98">{t('Všechny veřejné projekty', 'All public projects')} <svg class="gf-icon" aria-hidden="true"><use href="#gf-external"/></svg></a>
+    </div>
+    <div class="gf-project-grid">
+      {projects.map(project => <article class="gf-project">
+        <a href={'https://github.com/GameFunns98/' + project.repo}>
+          <div class="gf-project-art"><img src={'/images/project-' + project.key + '.svg'} alt="" width="640" height="320" loading="lazy"/></div>
+          <div class="gf-project-inner">
+            <div class="gf-project-title"><h3>{project.title[lang]}</h3><svg class="gf-icon" aria-hidden="true"><use href="#gf-external"/></svg></div>
+            <p>{project.description[lang]}</p>
+            <ul class="gf-tags">{project.tags.map(tag => <li>{tag}</li>)}</ul>
+          </div>
+        </a>
+      </article>)}
     </div>
   </section>
-  <div class="gf-wrap gf-integration"><Activity lang={lang}/></div>
-  <section class="gf-wrap gf-section" id="projects" aria-labelledby="projects-title">
-    <div class="gf-section-head"><div><p class="gf-line">GitHub</p><h2 id="projects-title">{t('Vybrané','Selected')} <em>{t('projekty.','projects.')}</em></h2></div><a class="gf-secondary" href="https://github.com/GameFunns98">{t('Profil na GitHubu','GitHub profile')}<svg class="gf-icon" aria-hidden="true"><use href="#gf-external"/></svg></a></div>
-    <div class="gf-project-grid">{projects.map(project=><article class="gf-project"><a href={'https://github.com/GameFunns98/'+project.repo}><div class="gf-project-art"><img src={'/images/project-'+project.key+'.svg'} alt="" width="760" height="370" loading="lazy"/></div><div class="gf-project-inner"><div class="gf-project-title"><h3>{project.title[lang]}</h3><svg class="gf-icon" aria-hidden="true"><use href="#gf-external"/></svg></div><p>{project.description[lang]}</p><ul class="gf-tags">{project.tags.map(tag=><li>{tag}</li>)}</ul></div></a></article>)}</div>
+
+  <div class="gf-moments-band"><div class="gf-wrap gf-integration"><Moments lang={lang}/></div></div>
+
+  <section id="connect" class="gf-connect" aria-labelledby="connect-title">
+    <div class="gf-wrap gf-connect-inner">
+      <div><span class="gf-star gf-connect-star" aria-hidden="true"></span><h2 id="connect-title">{t('Uvidíme se', 'See you')}<br/>{t('online.', 'online.')}</h2></div>
+      <ul class="gf-socials">{socials.map(([name, url, handle]) => <li><a href={url}><strong>{name}</strong><span>{handle}</span><svg class="gf-icon" aria-hidden="true"><use href="#gf-external"/></svg></a></li>)}</ul>
+    </div>
   </section>
-  <div class="gf-wrap gf-integration"><Moments lang={lang}/></div>
-  <section id="connect" class="gf-connect" aria-labelledby="connect-title"><div class="gf-wrap gf-connect-inner"><div><p class="gf-line">{t('Kontakt','Connect')}</p><h2 id="connect-title">{t('Kde mě','Where to')} <em>{t('najdeš.','find me.')}</em></h2></div><ul class="gf-socials">{socials.map(([name,url,handle])=><li><a href={url}><strong>{name}</strong><span>{handle}</span><svg class="gf-icon" aria-hidden="true"><use href="#gf-external"/></svg></a></li>)}</ul></div></section>
 </main>
-<footer class="gf-wrap gf-footer"><span>© {new Date().getFullYear()} Václav Duda</span><a href="#top">{t('Zpět nahoru','Back to top')} ↑</a></footer>
+<footer class="gf-wrap gf-footer"><span>© {new Date().getFullYear()} Václav Duda</span><a href="#top">{t('Zpět nahoru', 'Back to top')} ↑</a></footer>
 <script>
   const root = document.documentElement;
   const switcher = document.querySelector<HTMLButtonElement>('[data-theme-switch]');

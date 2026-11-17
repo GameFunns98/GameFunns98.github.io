@@ -2,6 +2,8 @@
 
 Osobní portfolio Václava Dudy. Astro, TypeScript strict a Tailwind CSS. Výsledkem jsou statické stránky pro GitHub Pages.
 
+Vzhled pracuje s velkou patkovou typografií, obrysovým nápisem GameFunns, hvězdicovými akcenty a barevnými bloky podle dodané grafické předlohy. Výchozí tmavý lesní motiv a světlá sakura mají vlastní palety i obrazové scény. Písma Fraunces a Poppins jsou lokálně hostovanou vizuální aproximací předlohy.
+
 ## Vývoj
 
 Použij Node.js 24 LTS a npm. Z kořene repozitáře spusť `npm ci`, potom `npm run dev`. Produkční verzi sestaví `npm run build` a spustí `npm run preview`.
