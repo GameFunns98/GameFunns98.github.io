@@ -16,14 +16,14 @@ test('the portable review contains both languages, themes and complete local med
     await expect(image).toHaveJSProperty('complete', true);
     expect(await image.evaluate(element => element.naturalWidth)).toBeGreaterThan(0);
   }
-  await page.screenshot({ path: 'test-results/review/offline-desktop-dark.png', fullPage: true });
+  await page.screenshot({ path: 'test-results/review/offline-desktop-dark.png', fullPage: true, animations: 'disabled' });
   await page.getByRole('button', { name: 'Use light theme' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  await page.screenshot({ path: 'test-results/review/offline-desktop-light.png', fullPage: true });
+  await page.screenshot({ path: 'test-results/review/offline-desktop-light.png', fullPage: true, animations: 'disabled' });
   await page.getByRole('link', { name: /Přepnout do češtiny/ }).click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'cs');
   await expect(page.getByRole('heading', { name: /Ahoj,.*jsem Václav/ })).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.screenshot({ path: 'test-results/review/offline-mobile-light.png', fullPage: true });
+  await page.screenshot({ path: 'test-results/review/offline-mobile-light.png', fullPage: true, animations: 'disabled' });
   expect(errors).toEqual([]);
 });
