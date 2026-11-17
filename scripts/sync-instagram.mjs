@@ -47,9 +47,11 @@ async function readResponse(response, limit, allowHttpError = false) {
 async function graphJson(endpoint, fields, fetcher, token, limit) {
   const url = new URL(endpoint, graph);
   url.searchParams.set('fields', fields);
+  // Instagram Login documents this parameter for its server-side Graph requests.
+  // Never log the request URL; public snapshots contain only curated media data.
+  url.searchParams.set('access_token', token);
   if (limit) url.searchParams.set('limit', String(limit));
   const response = await fetcher(url, {
-    headers: { Authorization: 'Bearer ' + token },
     redirect: 'error', signal: AbortSignal.timeout(20000),
   });
   const body = await readResponse(response, jsonLimit, true);

@@ -22,21 +22,21 @@ async function temporary(t) {
   return dir;
 }
 
-test('auth requests use headers, video downloads only its public cover, local snapshot contains no credentials',async t => {
+test('only server-side Graph requests receive a token; video covers and public snapshots contain no credentials',async t => {
   const cwd = await temporary(t);
   const stages = [];
   const fetcher = async (url, options) => {
     stages.push(url.pathname);
     assert.equal(options.redirect,'error');
     assert.ok(options.signal);
-    assert.ok(!url.href.includes(token));
     if (url.hostname === 'graph.instagram.com') {
-      assert.equal(options.headers.Authorization, 'Bearer ' + token);
+      assert.equal(url.searchParams.get('access_token'), token);
       if (url.pathname.endsWith('/me')) return json(profile);
       assert.equal(url.searchParams.get('limit'),'6');
       assert.match(url.searchParams.get('fields'),/children/);
       return json({data:[media]});
     }
+    assert.ok(!url.href.includes(token));
     assert.equal(options.headers,undefined);
     return image();
   };
@@ -59,7 +59,7 @@ test('the documented one-item profile wrapper is verified before media is read',
   const cwd = await temporary(t);
   const fetcher = async (url, options) => {
     if (url.hostname !== 'graph.instagram.com') return image();
-    assert.equal(options.headers.Authorization, 'Bearer ' + token);
+    assert.equal(url.searchParams.get('access_token'), token);
     if (url.pathname.endsWith('/me')) return json({data:[profile]});
     return json({data:[media]});
   };
@@ -91,6 +91,7 @@ test('verified source imports a carousel child without Graph access; failed refr
     throw new Error('upstream request included credential ' + token);
   }});
   assert.equal(failure.status,'unavailable');
+  assert.ok(!JSON.stringify(failure).includes(token));
   const current = await snapshot(cwd);
   assert.deepEqual(JSON.parse(current),{...previous,status:'unavailable'});
   assert.ok(!current.includes(token));
