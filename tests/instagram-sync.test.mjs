@@ -55,6 +55,28 @@ test('missing token leaves the workspace untouched',async t => {
   await assert.rejects(snapshot(cwd),{code:'ENOENT'});
 });
 
+test('the documented one-item profile wrapper is verified before media is read',async t => {
+  const cwd = await temporary(t);
+  const fetcher = async (url, options) => {
+    if (url.hostname !== 'graph.instagram.com') return image();
+    assert.equal(options.headers.Authorization, 'Bearer ' + token);
+    if (url.pathname.endsWith('/me')) return json({data:[profile]});
+    return json({data:[media]});
+  };
+  assert.deepEqual(await syncInstagram({cwd,token:' \n' + token + '\n ',fetcher}),{status:'connected',count:1});
+  assert.equal(JSON.parse(await snapshot(cwd)).posts[0].id,media.id);
+});
+
+test('API diagnostics keep only fixed stages and numeric codes, never upstream secret-bearing text',async t => {
+  const cwd = await temporary(t);
+  const failure = await syncInstagram({cwd,token,fetcher:() => new Response(JSON.stringify({
+    error:{code:190,error_subcode:463,message:'Token ' + token,secret:token},
+  }),{status:400,headers:{'content-type':'application/json'}})});
+  assert.deepEqual(failure,{status:'unavailable',diagnostic:{stage:'profile',reason:'api-request-rejected',httpStatus:400,apiCode:190,apiSubcode:463}});
+  assert.ok(!JSON.stringify(failure).includes(token));
+  assert.ok(!String(await snapshot(cwd)).includes(token));
+});
+
 test('verified source imports a carousel child without Graph access; failed refresh keeps previous date and posts',async t => {
   const cwd = await temporary(t);
   const carousel = {...media,media_type:'CAROUSEL_ALBUM',media_url:null,children:{data:[media]}};

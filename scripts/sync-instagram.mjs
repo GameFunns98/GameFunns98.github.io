@@ -11,12 +11,19 @@ const jsonLimit = 1024 * 1024;
 const mediaTypes = ['IMAGE', 'VIDEO', 'CAROUSEL_ALBUM'];
 const mediaFields = 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,children{media_type,media_url,thumbnail_url}';
 
-function check(condition) {
-  if (!condition) throw new Error('Invalid Instagram response');
+class InstagramSyncError extends Error {
+  constructor(reason, details = {}) {
+    super(reason);
+    this.diagnostic = { reason, ...details };
+  }
 }
 
-async function readResponse(response, limit) {
-  check(response.ok && response.body && Number(response.headers.get('content-length') || 0) <= limit);
+function check(condition) {
+  if (!condition) throw new InstagramSyncError('invalid-response');
+}
+
+async function readResponse(response, limit, allowHttpError = false) {
+  check((response.ok || allowHttpError) && response.body && Number(response.headers.get('content-length') || 0) <= limit);
   const reader = response.body.getReader();
   const chunks = [];
   let size = 0;
@@ -45,7 +52,17 @@ async function graphJson(endpoint, fields, fetcher, token, limit) {
     headers: { Authorization: 'Bearer ' + token },
     redirect: 'error', signal: AbortSignal.timeout(20000),
   });
-  return JSON.parse((await readResponse(response, jsonLimit)).toString('utf8'));
+  const body = await readResponse(response, jsonLimit, true);
+  if (!response.ok) {
+    const details = { httpStatus: response.status };
+    try {
+      const failure = JSON.parse(body.toString('utf8')).error;
+      if (Number.isInteger(failure?.code)) details.apiCode = failure.code;
+      if (Number.isInteger(failure?.error_subcode)) details.apiSubcode = failure.error_subcode;
+    } catch { /* Never log upstream error messages, URLs or credentials. */ }
+    throw new InstagramSyncError('api-request-rejected', details);
+  }
+  return JSON.parse(body.toString('utf8'));
 }
 
 function extension(bytes, type) {
@@ -108,6 +125,7 @@ async function writeSnapshot(file, snapshot) {
 
 export async function syncInstagram({token = process.env.INSTAGRAM_ACCESS_TOKEN, source, fetcher = fetch, cwd = process.cwd()} = {}) {
   const file = path.join(cwd,'src','data','instagram.json');
+  if (typeof token === 'string') token = token.trim();
   if (!source && !token) return { status:'skipped' };
   let previous;
   try {
@@ -116,28 +134,36 @@ export async function syncInstagram({token = process.env.INSTAGRAM_ACCESS_TOKEN,
     if (error.code !== 'ENOENT') throw new Error('Could not read Instagram snapshot');
     previous = { username, profileUrl, fetchedAt:null, status:'not-configured', posts:[] };
   }
+  let stage = 'profile';
   try {
-    const profile = source ? source.profile : await graphJson('me','user_id,username,account_type',fetcher,token);
+    const response = source ? source.profile : await graphJson('me','user_id,username,account_type',fetcher,token);
+    const profile = Array.isArray(response?.data) && response.data.length === 1 ? response.data[0] : response;
     check(profile?.username === username && ['BUSINESS','MEDIA_CREATOR'].includes(String(profile.account_type).toUpperCase()));
     let media = source?.media;
+    stage = 'media';
     if (!source) {
       const id = profile.user_id ?? profile.id;
       check(typeof id === 'string' && /^\d{1,32}$/.test(id));
       media = (await graphJson(id + '/media',mediaFields,fetcher,token,6)).data;
     }
     check(Array.isArray(media));
+    stage = 'covers';
     const assets = [];
     for (const item of media.slice(0,6)) assets.push(await preparePost(item,fetcher,token));
     check(new Set(assets.map(a => a.post.id)).size === assets.length);
+    stage = 'save';
     for (const asset of assets) {
       await atomicWrite(path.join(cwd,'public','images','instagram',asset.filename),asset.bytes);
     }
     const snapshot = { username, profileUrl, fetchedAt:new Date().toISOString(), status:'connected', posts:assets.map(a => a.post) };
     await writeSnapshot(file,snapshot);
     return {status:'connected', count:assets.length};
-  } catch {
+  } catch (error) {
     await writeSnapshot(file,{ ...previous, status:'unavailable' });
-    return {status:'unavailable'};
+    const details = error instanceof InstagramSyncError ? error.diagnostic : {
+      reason: error?.name === 'TimeoutError' ? 'request-timeout' : 'request-or-data-failed',
+    };
+    return {status:'unavailable', diagnostic:{stage, ...details}};
   }
 }
 
@@ -153,6 +179,8 @@ async function main() {
   }
   const result = await syncInstagram({source});
   console.log('Instagram sync:', result.status);
+  if (result.count !== undefined) console.log('Instagram posts:', result.count);
+  if (result.diagnostic) console.error('Instagram sync diagnostic:', JSON.stringify(result.diagnostic));
   if (result.status === 'unavailable') process.exitCode = 1;
 }
 
