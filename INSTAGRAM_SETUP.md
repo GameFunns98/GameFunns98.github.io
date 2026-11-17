@@ -10,7 +10,7 @@ Autorizované připojení Instagramu v ChatGPT umožní ověřit účet a přen�
 
 1. Otevři [Meta App Dashboard](https://developers.facebook.com/apps/) a aplikaci s nastaveným Instagram API with Instagram Login. Pro vlastní spravovaný účet stačí Standard Access. Potřebné oprávnění pro tento feed je `instagram_business_basic`.
 2. V sekci Instagram API setup vygeneruj dlouhodobý token pro správný účet. Token z App Dashboardu platí 60 dní. Meta umožňuje jeho obnovu po prvních 24 hodinách platnosti.
-3. Vlož token přímo do [Actions Secrets cílového repozitáře](https://github.com/GameFunns98/GameFunns98.github.io/settings/secrets/actions) pod názvem `INSTAGRAM_ACCESS_TOKEN`.
+3. Zkopíruj samotnou hodnotu tokenu, bez uvozovek a bez prefixu `Bearer`. Vlož token přímo do [Actions Secrets cílového repozitáře](https://github.com/GameFunns98/GameFunns98.github.io/settings/secrets/actions) pod názvem `INSTAGRAM_ACCESS_TOKEN`.
 4. Spusť workflow **Refresh public profile data**. Plánované spuštění každých šest hodin začne fungovat po přidání workflow do výchozí větve.
 
 Token patří do GitHub Actions Secrets. Při expiraci nebo odvolání přístupu získej nový token v Meta App Dashboardu a aktualizuj stejný secret.
@@ -23,3 +23,9 @@ Při výpadku zůstane poslední platný přehled včetně původního času akt
 
 - [Oficiální zahájení práce s Instagram Login](https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-instagram-login/get-started)
 - [Oprávnění a platnost tokenů](https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-instagram-login/business-login)
+
+## Ověření a řešení chyby tokenu
+
+Úspěšný krok vypíše `Instagram sync: connected` a počet skutečných příspěvků. V `src/data/instagram.json` se změní `fetchedAt`. Zelený výsledek celého workflow sám úspěšnou obnovu všech služeb nepotvrzuje: nezávislé integrace při výpadku zachovávají cache.
+
+Pokud bezpečná diagnostika ukáže `api-request-rejected` a `apiCode: 190`, Meta uložený token odmítla. Vygeneruj nový **Instagram User access token** v nastavení **Instagram > API setup with Instagram business login > Generate token** pro `@vevoda_vaclav` a nahraď hodnotu stejného Actions Secret. Token neposílej do chatu. Diagnostika zobrazuje pouze krok, HTTP stav a číselné kódy; nikdy token, URL požadavku ani původní text chyby.
