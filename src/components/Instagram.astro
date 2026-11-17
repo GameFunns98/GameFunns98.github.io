@@ -1,0 +1,79 @@
+---
+import instagramData from '../data/instagram.json';
+import type { InstagramSnapshot, InstagramPost } from '../data/instagram-types';
+
+interface Props { lang: 'cs' | 'en' }
+const snapshot = instagramData as InstagramSnapshot;
+const { lang } = Astro.props;
+const copy = lang === 'cs' ? {
+  profile: 'Otevřít profil',
+  disconnected: 'Příspěvky zatím najdeš přímo na mém Instagramu.',
+  unavailable: 'Poslední aktualizace se nezdařila.',
+  empty: 'V posledním přehledu nejsou žádné příspěvky.',
+  updated: 'Uložený přehled z',
+  open: 'Otevřít příspěvek na Instagramu',
+  photo: 'Fotografie', video: 'Video', album: 'Album',
+} : {
+  profile: 'Open profile',
+  disconnected: 'For now, you can find my posts directly on Instagram.',
+  unavailable: 'The latest update was unsuccessful.',
+  empty: 'The latest snapshot contains no posts.',
+  updated: 'Snapshot from',
+  open: 'Open post on Instagram',
+  photo: 'Photo', video: 'Video', album: 'Carousel',
+};
+const locale = lang === 'cs' ? 'cs-CZ' : 'en-GB';
+const dateFormatter = new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'Europe/Prague' });
+const stampFormatter = new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Europe/Prague' });
+const format = (value: string | null, formatter: Intl.DateTimeFormat) =>
+  value && Number.isFinite(Date.parse(value)) ? formatter.format(new Date(value)) : '';
+const typeName = (type: string) => type === 'VIDEO' ? copy.video : type === 'CAROUSEL_ALBUM' ? copy.album : copy.photo;
+const posts: readonly InstagramPost[] = snapshot.status === 'not-configured' ? [] : snapshot.posts;
+const fetched = format(snapshot.fetchedAt, stampFormatter);
+---
+<section id="instagram" class="gf-section" aria-labelledby="instagram-title">
+  <div class="gf-section-head">
+    <div><p class="gf-line">@{snapshot.username}</p><h2 id="instagram-title">Instagram<em>.</em></h2></div>
+    <a class="gf-secondary" href={snapshot.profileUrl}>{copy.profile} <span aria-hidden="true">↗</span></a>
+  </div>
+  {snapshot.status === 'not-configured' && <p class="ig-note">{copy.disconnected}</p>}
+  {snapshot.status === 'unavailable' && <p class="ig-note">{copy.unavailable}</p>}
+  {snapshot.status === 'connected' && posts.length === 0 && <p class="ig-note">{copy.empty}</p>}
+  {fetched && <p class="ig-stamp">{copy.updated} <time datetime={snapshot.fetchedAt ?? undefined}>{fetched}</time></p>}
+  {posts.length > 0 &&
+    <ul class="ig-posts">
+      {posts.map(post => {
+        const date = format(post.timestamp, dateFormatter);
+        return <li>
+          <a class="ig-post" href={post.permalink}>
+            <img src={post.poster} alt="" loading="lazy" decoding="async" width="480" height="480"/>
+            <div class="ig-details">
+              <div class="ig-meta">
+                <strong>{typeName(post.mediaType)}</strong>
+                {date && <time datetime={post.timestamp}>{date}</time>}
+              </div>
+              {post.caption && <p>{post.caption}</p>}
+              <span class="ig-link">{copy.open} <span aria-hidden="true">↗</span></span>
+            </div>
+          </a>
+        </li>;
+      })}
+    </ul>
+  }
+</section>
+<style>
+  .ig-note { margin:0; padding:clamp(18px,3vw,34px); border:1px solid var(--border); border-left:4px solid var(--accent); background:var(--surface); color:var(--text); }
+  .ig-stamp { color:var(--muted); font-size:.84rem; margin:15px 0; }
+  .ig-posts { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:clamp(16px,2.4vw,32px); padding:0; margin:0; list-style:none; }
+  .ig-post { height:100%; display:flex; flex-direction:column; text-decoration:none; color:var(--text); background:var(--surface); border:1px solid var(--border); }
+  .ig-post:hover { border-color:var(--accent); }
+  .ig-post img { display:block; width:100%; height:auto; aspect-ratio:1; object-fit:cover; }
+  .ig-details { padding:clamp(15px,2vw,24px); border-top:3px solid var(--accent); display:flex; flex:1; flex-direction:column; gap:12px; }
+  .ig-meta { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:4px 9px; }
+  .ig-meta strong { font:700 1.3rem/1.2 var(--display); }
+  .ig-meta time { font-size:.78rem; color:var(--muted); }
+  .ig-details p { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden; overflow-wrap:anywhere; margin:0; font-size:.92rem; }
+  .ig-link { margin-top:auto; font:650 .82rem/1.5 var(--sans); text-decoration:underline; text-underline-offset:4px; }
+  @media(max-width:850px) { .ig-posts { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  @media(max-width:520px) { .ig-posts { grid-template-columns:1fr; } }
+</style>

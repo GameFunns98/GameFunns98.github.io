@@ -11,8 +11,10 @@ Kontrola nového grafického vzhledu proběhla dne 17. 11. 2026 nad produkčním
 - Ověření načítání klipu na vyžádání a funkčního odkazu při chybě videa.
 - Samostatný HTML náhled ověřený v Chromium včetně fontů, skutečných obrázků, obou jazyků a motivů.
 - Vizuální kontrola tmavého a světlého motivu na desktopu a světlého motivu na telefonu. Česká diakritika se vykresluje správně.
-- Celkem prochází osm datových a šest prohlížečových testů včetně šířek 320, 360, 768 a 1024 px.
+- Celkem prochází 14 datových a devět prohlížečových testů včetně šířek 320, 360, 768 a 1024 px.
 - Soubory Fraunces a Poppins mají ověřenou přítomnost českých znaků ve všech použitých řezech. Licence SIL OFL 1.1 jsou součástí repozitáře. Přesná rodina písma původní grafické předlohy zůstává neověřená.
+- Připojení Medal má dva testy rozpoznání veřejných klipů a ověření vlastníka. Veřejný profil a oba skutečné video streamy byly ověřeny 17. 11. 2026.
+- Synchronizace Instagramu má čtyři testy včetně ochrany tokenu, nesprávného účtu, videa a carouselu, výpadku a uchování posledního přehledu. Autorizovaný Creator účet byl ověřen 17. 11. 2026 a načteno šest skutečných příspěvků, včetně jednoho Reelu.
 
 ## Skutečné veřejné služby
 
@@ -25,6 +27,6 @@ Samostatná kontrola skutečných veřejných služeb proběhla 16. 11. 2026. P�
 ## Zbývající kroky
 
 - Oblíbené hry může vlastník doplnit v `src/data/favorites.ts`.
-- Instagram obsahuje funkční odkaz na profil. Automatický feed vyžaduje účet Creator nebo Business a autorizaci vlastníka.
+- Instagram má šest ověřených příspěvků načtených po autorizaci vlastníka. Pravidelná synchronizace vyžaduje GitHub Actions secret `INSTAGRAM_ACCESS_TOKEN`.
 - Publikace GitHub Pages a kontrola veřejné URL vyžadují samostatné schválení vlastníka.
 - Místní server nebyl z prohlížeče tohoto pracovního prostředí dostupný. Připravený samostatný HTML náhled umožňuje přezkoušení bez serveru. Standardní serverový build byl testovaný v Chromium v CI.

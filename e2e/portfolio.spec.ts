@@ -1,8 +1,11 @@
 import { expect, test, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { readFileSync } from 'node:fs';
+import type { InstagramSnapshot } from '../src/data/instagram-types';
 
 const discordURL = 'https://api.lanyard.rest/v1/users/922153911161323601';
 const errors = new WeakMap<Page, string[]>();
+const instagram = JSON.parse(readFileSync(new URL('../src/data/instagram.json', import.meta.url), 'utf8')) as InstagramSnapshot;
 
 test.beforeEach(async ({ page }) => {
   const messages: string[] = [];
@@ -24,12 +27,75 @@ test('the gallery loads media on demand and preserves an exit after failure', as
   const gallery = page.locator('[data-moments]');
   await expect(gallery.locator('video')).toHaveCount(0);
   await gallery.getByRole('button', { name: 'Grand Theft Auto V', exact: true }).click();
-  await expect(gallery.locator('[data-game]')).toBeVisible();
-  await gallery.getByRole('button', { name: /^Play clip/ }).click();
-  await expect(gallery.locator('[data-error]')).toBeVisible();
-  await expect(gallery.getByRole('link', { name: /Open on Medal/ })).toHaveAttribute('href', /klxbis7ZHUJDfDyKB/);
+  await expect(gallery.getByRole('link', { name: /Medal profile/ })).toHaveAttribute('href', 'https://medal.tv/u/GameFunns98');
+  const card = gallery.locator('[data-game]').filter({ has: page.getByRole('heading', { name: 'Menší 10-50' }) });
+  await expect(card).toBeVisible();
+  await card.getByRole('button', { name: /^Play clip/ }).click();
+  await expect(card.locator('[data-error]')).toBeVisible();
+  await expect(card.getByRole('link', { name: /Open on Medal/ })).toHaveAttribute('href', /klxbis7ZHUJDfDyKB/);
   await expect(gallery.locator('video')).toHaveCount(0);
 });
+
+test('starting a second Medal clip stops and removes the first player', async ({ page }) => {
+  // Stub native playback only. Card handlers still create, stop and remove real video elements.
+  await page.addInitScript(() => {
+    HTMLMediaElement.prototype.play = async function () { this.dataset.playRequested = 'yes'; };
+    const pause = HTMLMediaElement.prototype.pause;
+    HTMLMediaElement.prototype.pause = function () {
+      this.dataset.pauseRequested = 'yes';
+      pause.call(this);
+    };
+  });
+  await page.goto('/en/#moments');
+  const gallery = page.locator('[data-moments]');
+  const cards = gallery.locator('[data-game]').filter({ has: page.locator('[data-play]') });
+  const first = cards.nth(0);
+  const second = cards.nth(1);
+  await first.getByRole('button', { name: /^Play clip/ }).click();
+  await expect(first.locator('video')).toHaveAttribute('data-play-requested', 'yes');
+  const oldVideo = await first.locator('video').elementHandle();
+  await second.getByRole('button', { name: /^Play clip/ }).click();
+  await expect(gallery.locator('video')).toHaveCount(1);
+  await expect(second.locator('video')).toHaveAttribute('data-play-requested', 'yes');
+  expect(await oldVideo!.evaluate(node => ({
+    paused: node.dataset.pauseRequested, connected: node.isConnected, src: node.getAttribute('src'),
+  }))).toEqual({ paused: 'yes', connected: false, src: null });
+  await expect(first.getByRole('button', { name: /^Play clip/ })).toBeVisible();
+  await second.getByRole('button', { name: 'Close player' }).click();
+  await expect(gallery.locator('video')).toHaveCount(0);
+});
+
+for (const locale of ['cs', 'en'] as const) {
+  test('Instagram shows six local previews and the snapshot date in ' + locale, async ({ page }) => {
+    await page.goto('/' + locale + '/#instagram');
+    const section = page.getByRole('region', { name: /^Instagram/ });
+    const postLinks = section.getByRole('listitem').getByRole('link');
+    const updated = locale === 'cs' ? 'Uložený přehled z' : 'Snapshot from';
+    const postLabel = locale === 'cs' ? 'Otevřít příspěvek na Instagramu' : 'Open post on Instagram';
+    const stamp = section.locator('.ig-stamp');
+    await expect(stamp).toContainText(updated);
+    await expect(stamp.locator('time')).toBeVisible();
+    expect(Number.isFinite(Date.parse(instagram.fetchedAt ?? ''))).toBe(true);
+    await expect(stamp.locator('time')).toHaveAttribute('datetime', instagram.fetchedAt!);
+    await expect(stamp.locator('time')).toHaveText(/\d/);
+    expect(instagram.posts).toHaveLength(6);
+    await expect(postLinks).toHaveCount(instagram.posts.length);
+    expect(new Set(instagram.posts.map(post => post.permalink)).size).toBe(6);
+    for (const [index, post] of instagram.posts.entries()) {
+      const link = postLinks.nth(index);
+      expect(post.permalink).toMatch(/^https:\/\/(?:www\.)?instagram\.com\/(?:p|reels?|tv)\/[\w-]+\/?$/);
+      await expect(link).toHaveAttribute('href', post.permalink);
+      await expect(link).toHaveAccessibleName(new RegExp(postLabel));
+      const image = link.locator('img');
+      expect(post.poster).toMatch(/^\/images\/instagram\/\d+\.(?:jpg|png|webp)$/);
+      await expect(image).toHaveAttribute('src', post.poster);
+      await image.scrollIntoViewIfNeeded();
+      await expect.poll(() => image.evaluate(el =>
+        el instanceof HTMLImageElement && el.complete && el.naturalWidth > 0
+      )).toBe(true);
+    }
+  });
+}
 
 test('browser language, explicit routes and saved language choice', async ({ browser, baseURL }) => {
   const context = await browser.newContext({ locale: 'cs-CZ', baseURL });

@@ -1,5 +1,5 @@
 ---
-import { clips } from '../data/clips';
+import { clips, medalProfile } from '../data/clips';
 interface Props { lang: 'cs' | 'en' }
 const { lang } = Astro.props;
 const copy = lang === 'cs'
@@ -8,7 +8,10 @@ const copy = lang === 'cs'
 const games = [...new Set(clips.map(clip => clip.game))];
 ---
 <section class="gf-section" id="moments" aria-labelledby="moments-title" data-moments>
-  <div class="gf-section-head"><div><p class="gf-line">Medal</p><h2 id="moments-title">{copy.title} <em>{copy.emphasis}.</em></h2></div></div>
+  <div class="gf-section-head"><div><p class="gf-line">Medal</p><h2 id="moments-title">{copy.title} <em>{copy.emphasis}.</em></h2></div>
+    <a class="gf-secondary" href={medalProfile}>{lang === 'cs' ? 'Profil na Medalu' : 'Medal profile'} <span aria-hidden="true">↗</span></a>
+  </div>
+  {clips.length === 0 && <p>{lang === 'cs' ? 'Klipy najdeš přímo na mém profilu.' : 'Visit my profile to see my clips.'}</p>}
   <div class="clip-filters" role="group" aria-label={copy.filter} data-filters hidden>
     {[['*', copy.all], ...games.map(game => [game, game])].map(([key, label]) =>
       <button type="button" class="chip" data-game-filter={key} aria-pressed={key === '*'}>{label}</button>
@@ -39,7 +42,7 @@ const games = [...new Set(clips.map(clip => clip.game))];
     const cards = gallery.querySelectorAll<HTMLElement>('[data-game]');
     const filters = gallery.querySelectorAll<HTMLButtonElement>('[data-game-filter]');
     const filterBar = gallery.querySelector<HTMLElement>('[data-filters]');
-    if (filterBar) filterBar.hidden = false;
+    if (filterBar && cards.length) filterBar.hidden = false;
     for (const card of cards) {
       const stage = card.querySelector<HTMLElement>('[data-stage]');
       const cover = card.querySelector<HTMLElement>('[data-cover]');
@@ -63,6 +66,7 @@ const games = [...new Set(clips.map(clip => clip.game))];
         error.hidden = true;
       };
       play.addEventListener('click', () => {
+        for (const other of cards) if (other !== card) other.dispatchEvent(new Event('clip-stop'));
         const video = document.createElement('video');
         video.controls = true;
         video.tabIndex = 0;

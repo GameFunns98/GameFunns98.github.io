@@ -1,0 +1,21 @@
+{
+  "profile": "https://medal.tv/u/GameFunns98",
+  "clips": [
+    {
+      "id": "klxbis7ZHUJDfDyKB",
+      "game": "Grand Theft Auto V",
+      "title": "Menší 10-50",
+      "url": "https://medal.tv/games/gta-v/clips/klxbis7ZHUJDfDyKB",
+      "poster": "/images/medal-klxbis7ZHUJDfDyKB.jpg",
+      "video": "https://medal.tv/api/content/klxbis7ZHUJDfDyKB/socialVideoUrl"
+    },
+    {
+      "id": "jXENm3U0h4-L2QW1l",
+      "game": "Grand Theft Auto V",
+      "title": "Carter zasahuje",
+      "url": "https://medal.tv/games/gta-v/clips/jXENm3U0h4-L2QW1l",
+      "poster": "/images/medal-jXENm3U0h4-L2QW1l.jpg",
+      "video": "https://medal.tv/api/content/jXENm3U0h4-L2QW1l/socialVideoUrl"
+    }
+  ]
+}

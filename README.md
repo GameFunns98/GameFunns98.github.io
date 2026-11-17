@@ -17,7 +17,9 @@ Při nedostupnosti místního serveru vytvoří `node scripts/create-preview.mjs
 - `src/components/Portfolio.astro` skládá úvod, zájmy, vybrané projekty a sociální profily.
 - `src/data/projects.ts` obsahuje výběr projektů a překlady jejich popisů.
 - `src/data/favorites.ts` obsahuje ručně vybrané oblíbené hry. Prázdný seznam sekci skryje.
-- `src/data/clips.ts` obsahuje vlastní veřejné klipy. Přidávej pouze skutečný klip a ověřený náhled. Délka se ručně neodhaduje.
+- `src/data/clips.ts` typuje ověřený přehled Medal; zdroj dat je `src/data/medal.json`. Délka se ručně neodhaduje.
+- `src/data/medal.json` je ověřený přehled klipů z vlastního veřejného profilu Medal.
+- `src/data/instagram.json` je uložený přehled skutečných Instagram příspěvků s časem aktualizace.
 - `src/data/activity-copy.ts` obsahuje překlady integrací.
 - `src/styles/portfolio.css` definuje oba motivy, rozložení a pohyb.
 - `src/layouts/Page.astro` nastavuje jazyk, SEO, bezpečnostní omezení a počáteční motiv.
@@ -43,9 +45,13 @@ Stav se kontroluje až poblíž viditelné sekce a obnovuje se s prodlevou při 
 
 ## Medal a Instagram
 
-Medal galerie používá ručně spravovaný seznam vlastních klipů. Video se načítá až na přání návštěvníka. Zdroj je veřejná adresa videa ze skutečných metadat klipu. Při změně dostupnosti funguje odkaz na původní stránku. Oficiální profilový feed se nepoužívá.
+Medal galerie používá vlastní veřejný profil `GameFunns98`. `npm run sync:medal` načte odkazy zpřístupněné veřejnou stránkou profilu a ověří autora i identitu každého klipu přes Medal oEmbed. Kontroluje také předem vybraný klip a dosavadní přehled. Zpracuje nejvýše 12 klipů. Úplnost historie závisí na odkazech, které veřejný profil zpřístupní.
 
-Instagram má odkaz na `@vevoda_vaclav`. Pro budoucí automatický feed je potřeba účet Creator nebo Business a autorizace oficiálního Meta API. Token patří do GitHub Actions Secrets. Osobní účet aplikace sama nemění.
+Video se načítá až na přání návštěvníka. Přehrávač používá skutečný veřejný MP4 stream a skutečný lokálně uložený náhled. Při výpadku funguje odkaz na původní klip. Při neúspěšné aktualizaci se zachová poslední přehled.
+
+Instagram používá oficiální Instagram API with Instagram Login pro `@vevoda_vaclav`. `npm run sync:instagram` uloží až šest skutečných příspěvků a lokální náhledy. Aktivaci popisuje `INSTAGRAM_SETUP.md`. Přístupový token se vkládá do Actions Secret `INSTAGRAM_ACCESS_TOKEN`. První autorizované načtení již obsahuje šest skutečných příspěvků. Bez secretu se zachová tento datovaný přehled a synchronizace se přeskočí. Po prvním úspěšném připojení se při výpadku zachovají příspěvky s původním časem a označením neúspěšné obnovy.
+
+Workflow **Refresh public profile data** provádí synchronizaci každých šest hodin po přidání do výchozí větve. Vytvoří nový přehled v repozitáři a sestaví kontrolní artefakt. Veřejná publikace patří do samostatně schváleného nasazení.
 
 ## Sestavení a publikace
 

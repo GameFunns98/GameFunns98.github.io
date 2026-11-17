@@ -1,4 +1,4 @@
-import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { access, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 async function exists(file) {
@@ -41,29 +41,4 @@ async function fonts() {
   console.log('Self-hosted fonts prepared');
 }
 
-async function medal() {
-  if (await exists('public/data/medal.json')) return;
-  const id = 'klxbis7ZHUJDfDyKB';
-  const source = `https://medal.tv/games/gta-v/clips/${id}`;
-  const html = (await request(source, 4_000_000)).bytes.toString('utf8');
-  const poster = html.match(/<meta property="og:image" content="([^"]+)"/i)?.[1]?.replaceAll('&amp;', '&');
-  const title = html.match(/<meta property="og:title" content="([^"]+)"/i)?.[1]?.replace(/ - Clipped.*$/, '');
-  if (!poster || new URL(poster).hostname !== 'cdn.medal.tv' || !title) throw new Error('Medal poster metadata unavailable');
-  const image = await request(poster);
-  if (!image.type.startsWith('image/jpeg')) throw new Error('Medal poster is not a JPEG');
-  const video = `https://medal.tv/api/content/${id}/socialVideoUrl`;
-  const check = await fetch(video, { method: 'HEAD', signal: AbortSignal.timeout(20000) });
-  const contentType = check.headers.get('content-type') || '';
-  const validVideo = check.ok && contentType.startsWith('video/');
-  console.log('Medal public video check', check.status, contentType);
-  await mkdir('public/images', { recursive: true });
-  await mkdir('public/data', { recursive: true });
-  await writeFile(`public/images/medal-${id}.jpg`, image.bytes);
-  await writeFile('public/data/medal.json', JSON.stringify({
-    source, title, poster: `/images/medal-${id}.jpg`, video: validVideo ? video : null,
-    verifiedAt: new Date().toISOString(),
-  }, null, 2) + '\n');
-}
-
 await fonts();
-await medal();
