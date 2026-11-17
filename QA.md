@@ -1,6 +1,6 @@
 # Ověření implementace
 
-Kontrola proběhla dne 16. 11. 2026 nad produkčním statickým buildem ve větvi `feature/personal-portfolio`.
+Kontrola nového grafického vzhledu proběhla dne 17. 11. 2026 nad produkčním statickým buildem ve větvi `feature/personal-portfolio`.
 
 ## Automatické kontroly
 
@@ -11,8 +11,12 @@ Kontrola proběhla dne 16. 11. 2026 nad produkčním statickým buildem ve větv
 - Ověření načítání klipu na vyžádání a funkčního odkazu při chybě videa.
 - Samostatný HTML náhled ověřený v Chromium včetně fontů, skutečných obrázků, obou jazyků a motivů.
 - Vizuální kontrola tmavého a světlého motivu na desktopu a světlého motivu na telefonu. Česká diakritika se vykresluje správně.
+- Celkem prochází osm datových a šest prohlížečových testů včetně šířek 320, 360, 768 a 1024 px.
+- Soubory Fraunces a Poppins mají ověřenou přítomnost českých znaků ve všech použitých řezech. Licence SIL OFL 1.1 jsou součástí repozitáře. Přesná rodina písma původní grafické předlohy zůstává neověřená.
 
 ## Skutečné veřejné služby
+
+Samostatná kontrola skutečných veřejných služeb proběhla 16. 11. 2026. Při úpravě vzhledu byly znovu testované úspěšné odpovědi i výpadky v prohlížeči.
 
 - Steam přehled vychází z existujícího veřejného `steam.svg` a ověřené revize zdroje. Obnova používá veřejné GitHub API a poslední platná data při výpadku.
 - Lanyard vrátil platná data pro správné Discord ID. Přítomnost se úspěšně načetla také v Chromium.

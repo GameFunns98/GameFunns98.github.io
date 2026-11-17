@@ -19,6 +19,9 @@ async function fonts() {
   let css = (await request(cssURL, 100000, {
     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
   })).bytes.toString('utf8');
+  const latinFaces = [...css.matchAll(/\/\* (latin(?:-ext)?) \*\/\s*(@font-face\s*\{[\s\S]*?\})/g)];
+  if (!latinFaces.length) throw new Error('Latin font faces missing');
+  css = latinFaces.map(match => match[2]).join('\n\n');
   const urls = [...new Set([...css.matchAll(/url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/g)].map(match => match[1]))];
   if (!urls.length || urls.length > 40) throw new Error('Font CSS format changed');
   await mkdir('public/fonts', { recursive: true });
