@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320">
+  <defs><linearGradient id="field" x2="95%" y2="80%"><stop stop-color="#142a30"/><stop offset="1" stop-color="#335a50"/></linearGradient>
+    <pattern id="grid" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M22 0H0v22" fill="none" stroke="#f4d191" stroke-opacity=".12" stroke-width=".8"/></pattern>
+  </defs>
+  <rect width="640" height="320" fill="url(#field)"/>
+  <rect width="640" height="320" fill="url(#grid)"/>
+  <g fill="none" stroke="#f4d191" stroke-width="1" opacity=".22"><path d="M-42 278C73 291 60 226 145 253S280 293 252 350M-38 264C75 277 59 212 145 239S279 280 250 339M-32 249C81 262 65 197 151 224S285 265 256 324M436-24c-5 69 71 9 105 82s68 47 123 27M449-22c-5 68 72 8 106 81s67 48 120 27M462-24c-5 68 72 8 106 81s67 48 120 27"/></g>
+  <g fill="none" stroke="#c4d9a9" stroke-width="1.5" opacity=".8"><ellipse cx="351" cy="158" rx="78" ry="78" stroke-dasharray="2 5"/><circle cx="351" cy="158" r="59"/><path d="M224 158h49m156 0h37m-115-124v46m0 156v45"/></g><g fill="none" stroke="#e2dca8" stroke-width="3" stroke-linecap="round"><path d="M238 231h193m-167-2c15-27 24-71 17-121m63 121c-17-35-24-79-16-121"/><ellipse cx="304" cy="108" rx="23" ry="5"/><path d="M327 229c15-21 24-50 20-78m58 78c-17-21-24-47-21-78"/><ellipse cx="366" cy="151" rx="18" ry="4"/><path d="M300 90c14-17-9-21 8-38m9 45c14-16-2-20 10-31" opacity=".5"/></g><path d="M120 195h43l5-10 7 19 9-32 6 23h48" fill="none" stroke="#e9b95e" stroke-width="3"/>
+</svg>

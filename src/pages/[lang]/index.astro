@@ -1,0 +1,7 @@
+---
+import Page from '../../layouts/Page.astro';
+import Portfolio from '../../components/Portfolio.astro';
+export const getStaticPaths = () => [{ params: { lang: 'cs' } }, { params: { lang: 'en' } }];
+const lang = Astro.params.lang === 'en' ? 'en' : 'cs';
+---
+<Page {lang}><Portfolio {lang} /></Page>

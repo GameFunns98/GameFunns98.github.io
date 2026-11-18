@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="320" viewBox="0 0 640 320">
+  <defs><linearGradient id="field" x2="95%" y2="80%"><stop stop-color="#2b2534"/><stop offset="1" stop-color="#70566b"/></linearGradient>
+    <pattern id="grid" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M22 0H0v22" fill="none" stroke="#e5c8ad" stroke-opacity=".12" stroke-width=".8"/></pattern>
+  </defs>
+  <rect width="640" height="320" fill="url(#field)"/>
+  <rect width="640" height="320" fill="url(#grid)"/>
+  <g fill="none" stroke="#e5c8ad" stroke-width="1" opacity=".22"><path d="M-42 278C73 291 60 226 145 253S280 293 252 350M-38 264C75 277 59 212 145 239S279 280 250 339M-32 249C81 262 65 197 151 224S285 265 256 324M436-24c-5 69 71 9 105 82s68 47 123 27M449-22c-5 68 72 8 106 81s67 48 120 27M462-24c-5 68 72 8 106 81s67 48 120 27"/></g>
+  <g stroke="#302d3c" stroke-width="3" stroke-linejoin="round"><path d="m242 123 76-40 77 40-77 39Z" fill="#dec8a1"/><path d="M242 123v76l76 42v-79z" fill="#b59d87"/><path d="m318 162 77-39v76l-77 42z" fill="#856b76"/><path d="m282 102 18-10 77 40-17 9z" fill="#e7dbbe"/><path d="m268 153 14 8v11l11 6v14l-11-6v12l-14-8v-12l-12-7v-14l12 7z" fill="#595967"/><path d="m347 174 28-14v7l-28 14z" fill="#dfc7a2"/><path d="m211 199 25-13 24 13-25 13z" fill="#d9b8a1"/><path d="m211 199 24 13v25l-24-13z" fill="#b0908b"/><path d="m235 212 25-13v25l-25 13z" fill="#896978"/></g>
+</svg>
